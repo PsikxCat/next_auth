@@ -42,7 +42,7 @@ export default function LoginForm() {
           setError(data.error)
           setSuccess(data.success)
         }).catch((error) => {
-          setError('Error en el servidor')
+          // setError('Error en el servidor')
           console.error(error)
         })
     })
