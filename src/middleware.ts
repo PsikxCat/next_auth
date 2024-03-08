@@ -6,18 +6,12 @@ import { publicRoutes, authRoutes, apiAuthPrefix, DEFAULT_LOGIN_REDIRECT } from 
 const { auth } = NextAuth(authConfig)
 
 export default auth((req) => {
-  console.log('entro middleware')
   const { nextUrl } = req
-  console.log('nextUrl --->', nextUrl)
   const isLoogedIn = !!req.auth
-  console.log('isLoogedIn --->', isLoogedIn)
 
   const isApiAuthRoute = nextUrl.pathname.startsWith(apiAuthPrefix)
-  console.log('isApiAuthRoute --->', isApiAuthRoute)
   const isPublicRoute = publicRoutes.includes(nextUrl.pathname)
-  console.log('isPublicRoute --->', isPublicRoute)
   const isAuthRoute = authRoutes.includes(nextUrl.pathname)
-  console.log('isAuthRoute --->', isAuthRoute)
 
   if (isApiAuthRoute) return
 
@@ -29,10 +23,10 @@ export default auth((req) => {
 
   if (!isLoogedIn && !isPublicRoute) {
     let callbackUrl = nextUrl.pathname
-    console.log('nextUrl.pathname --->', nextUrl.pathname)
-    console.log('nextUrl.search --->', nextUrl.search)
+    // console.log('nextUrl.pathname --->', nextUrl.pathname)
+    //     console.log('nextUrl.search --->', nextUrl.search)
     if (nextUrl.search) callbackUrl += nextUrl.search
-    console.log('encodedCallbackUrl --->', encodeURIComponent(callbackUrl))
+    // console.log('encodedCallbackUrl --->', encodeURIComponent(callbackUrl))
     const encodedCallbackUrl = encodeURIComponent(callbackUrl)
 
     return Response.redirect(new URL(

@@ -6,6 +6,9 @@ import { AuthError } from 'next-auth'
 import { LoginSchema } from '@/schemas'
 import { signIn } from '@/auth'
 import { DEFAULT_LOGIN_REDIRECT } from '@/routes'
+import { getUserByEmail } from '@/data/user'
+import { generateVerificationToken } from '@/lib/tokens'
+import { sendVerificationEmail } from '@/lib/mail'
 
 export const login = async (values: z.infer<typeof LoginSchema>) => {
   const validateFields = LoginSchema.safeParse(values)
@@ -15,6 +18,21 @@ export const login = async (values: z.infer<typeof LoginSchema>) => {
   }
 
   const { email, password } = validateFields.data
+
+  const existingUser = await getUserByEmail(email)
+
+  if (!existingUser?.password || !existingUser?.email) {
+    return { ok: false, error: 'Este correo no existe.' }
+  }
+
+  if (!existingUser.emailVerified) {
+    const verificationToken = await generateVerificationToken(existingUser.email)
+
+    await sendVerificationEmail(verificationToken.email as string, verificationToken.token as string)
+
+    if (verificationToken) return { ok: true, success: 'Email de confirmación enviado!' }
+    else return { ok: false, error: 'Error al enviar el correo de confirmación!' }
+  }
 
   try {
     await signIn('credentials', {

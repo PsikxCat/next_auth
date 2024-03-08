@@ -31,6 +31,17 @@ export const {
     }
   },
   callbacks: {
+    async signIn({ user, account }) {
+      if (account?.provider !== 'credentials') return true
+
+      if (user?.id) {
+        const existingUser = await getUserById(user.id)
+        // Previene el inicio de sesión si el correo no ha sido verificado
+        if (!existingUser?.emailVerified) return false
+      }
+
+      return true
+    },
     async session({ session, token }) {
       if (token.role && session.user) session.user.role = token.role as UserRole
       if (token.sub && session.user) session.user.id = token.sub
