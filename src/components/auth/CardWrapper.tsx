@@ -10,11 +10,11 @@ interface CardWrapperProps {
   children: React.ReactNode
   headerLabel: string
   backButtonLabel: string
-  bachButtonHref: string
+  backButtonHref: string
   showSocial?: boolean
 }
 export default function CardWrapper({
-  children, headerLabel, backButtonLabel, bachButtonHref, showSocial
+  children, headerLabel, backButtonLabel, backButtonHref, showSocial
 }: CardWrapperProps) {
   return (
     <Card className='w-[400px] shadow-md border'>
@@ -33,7 +33,7 @@ export default function CardWrapper({
       )}
 
       <CardFooter>
-        <BackButton label={backButtonLabel} href={bachButtonHref}/>
+        <BackButton label={backButtonLabel} href={backButtonHref}/>
       </CardFooter>
     </Card>
   )

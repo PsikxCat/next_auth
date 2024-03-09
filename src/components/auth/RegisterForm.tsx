@@ -53,7 +53,7 @@ export default function LoginForm() {
     <CardWrapper
       headerLabel='Crea una cuenta'
       backButtonLabel='¿Ya tienes una cuenta?'
-      bachButtonHref='/auth/login'
+      backButtonHref='/auth/login'
       showSocial
     >
       <Form {...form}>

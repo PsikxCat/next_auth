@@ -52,7 +52,7 @@ export default function LoginForm() {
     <CardWrapper
       headerLabel='Bienvenido de vuelta'
       backButtonLabel='¿No tienes cuenta?'
-      bachButtonHref='/auth/register'
+      backButtonHref='/auth/register'
       showSocial
     >
       <Form {...form}>

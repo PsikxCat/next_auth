@@ -14,7 +14,7 @@ export default function ErrorCard() {
     <CardWrapper
       headerLabel='Algo salio mal...'
       backButtonLabel='Volver a login'
-      bachButtonHref='/auth/login'
+      backButtonHref='/auth/login'
     >
       <div className='flex_center_column gap-y-2 m-auto'>
         <FormError message={urlError} />
