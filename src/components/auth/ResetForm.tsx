@@ -3,11 +3,10 @@
 import type * as z from 'zod'
 
 import { useState, useTransition } from 'react'
-import Link from 'next/link'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 
-import { LoginSchema } from '@/schemas'
+import { ResetSchema } from '@/schemas'
 import {
   Form,
   FormControl,
@@ -19,27 +18,24 @@ import {
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { CardWrapper, FormError, FormSuccess } from '@/components'
-import { login } from '@/actions/login'
+import { reset } from '@/actions/reset'
 
-export default function LoginForm() {
+export default function ResetForm() {
   const [error, setError] = useState<string | undefined>('')
   const [success, setSuccess] = useState<string | undefined>('')
   const [isPending, startTransition] = useTransition()
 
-  const form = useForm<z.infer<typeof LoginSchema>>({
-    resolver: zodResolver(LoginSchema),
-    defaultValues: {
-      email: '',
-      password: ''
-    }
+  const form = useForm<z.infer<typeof ResetSchema>>({
+    resolver: zodResolver(ResetSchema),
+    defaultValues: { email: '' }
   })
 
-  const handleSubmit = (values: z.infer<typeof LoginSchema>) => {
+  const handleSubmit = (values: z.infer<typeof ResetSchema>) => {
     setError('')
     setSuccess('')
 
     startTransition(() => {
-      login(values)
+      reset(values)
         .then((data) => {
           setError(data.error)
           setSuccess(data.success)
@@ -52,11 +48,10 @@ export default function LoginForm() {
 
   return (
     <CardWrapper
-      headerLabel='Bienvenido de vuelta'
-      backButtonLabel='¿No tienes cuenta?'
-      backButtonHref='/auth/register'
-      showSocial
-    >
+      headerLabel='¿Olvidaste tu contraseña?'
+      backButtonLabel='Volver a login'
+      backButtonHref='/auth/login'
+      >
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(handleSubmit)}
@@ -84,38 +79,6 @@ export default function LoginForm() {
                 </FormItem>
               )}
             />
-
-            <FormField
-              control={form.control}
-              name='password'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className='font-bold'>Contraseña</FormLabel>
-
-                  <FormControl>
-                    <Input
-                      {...field}
-                      disabled={isPending}
-                      placeholder='********'
-                      type='password'
-                    />
-                  </FormControl>
-
-                  <Button
-                    size='sm'
-                    variant='link'
-                    asChild
-                    className='px-0 font-normal'
-                  >
-                    <Link href={'/auth/forgot-password'}>
-                      ¿Olvidaste tu contraseña?
-                    </Link>
-                  </Button>
-
-                  <FormMessage/>
-                </FormItem>
-              )}
-            />
           </div>
 
           <FormError message={error} />
@@ -126,7 +89,7 @@ export default function LoginForm() {
             disabled={isPending}
             className='w-full'
           >
-            Iniciar sesión
+            Enviar correo de recuperación
           </Button>
         </form>
       </Form>

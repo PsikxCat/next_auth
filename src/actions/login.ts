@@ -28,7 +28,7 @@ export const login = async (values: z.infer<typeof LoginSchema>) => {
   if (!existingUser.emailVerified) {
     const verificationToken = await generateVerificationToken(existingUser.email)
 
-    await sendVerificationEmail(verificationToken.email as string, verificationToken.token as string)
+    await sendVerificationEmail(verificationToken.email, verificationToken.token)
 
     if (verificationToken) return { ok: true, success: 'Email de confirmación enviado!' }
     else return { ok: false, error: 'Error al enviar el correo de confirmación!' }

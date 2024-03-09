@@ -20,3 +20,9 @@ export const RegisterSchema = z.object({
     message: 'La contraseña debe tener al menos 6 caracteres'
   })
 })
+
+export const ResetSchema = z.object({
+  email: z.string().email({
+    message: 'Ingresa un correo válido'
+  })
+})
