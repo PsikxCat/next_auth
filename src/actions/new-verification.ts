@@ -8,7 +8,7 @@ export const newVerification = async (token: string, email: string) => {
   const existingToken = await getVerificationTokenByToken(email, token)
   if (!existingToken) return { ok: false, error: 'Token invalido!' }
 
-  const hasExpired = new Date(existingToken.expires as Date) < new Date()
+  const hasExpired = new Date(existingToken.expires) < new Date()
   if (hasExpired) return { ok: false, error: 'Token expirado!' }
 
   const existingUser = await getUserByEmail(email)

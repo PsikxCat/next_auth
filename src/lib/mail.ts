@@ -16,7 +16,7 @@ export const sendVerificationEmail = async (email: string, token: string) => {
 
 export const sendPasswordResetEmail = async (email: string, token: string) => {
   // pendiente ruta produccion
-  const resetLink = `http://localhost:3000/auth/forgot-password?token=${token}&email=${email}`
+  const resetLink = `http://localhost:3000/auth/new-password?token=${token}&email=${email}`
 
   await resend.emails.send({
     from: 'onboarding@resend.dev',
