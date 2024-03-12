@@ -25,3 +25,13 @@ export const sendPasswordResetEmail = async (email: string, token: string) => {
     html: `<p>Click <a href="${resetLink}">aqui</a> para resetear tu contraseña</p>`
   })
 }
+
+export const sendTwoFactorTokenEmail = async (email: string, token: string) => {
+  // TODO: Enviar sms en lugar de email
+  await resend.emails.send({
+    from: 'onboarding@resend.dev',
+    to: email,
+    subject: 'Tu código de verificación',
+    html: `<p>Tu código de verificación es: ${token}</p>`
+  })
+}

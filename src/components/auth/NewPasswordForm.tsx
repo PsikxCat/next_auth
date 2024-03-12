@@ -28,7 +28,6 @@ export default function NewPasswordForm() {
 
   const searchParams = useSearchParams()
   const [token, email] = [searchParams.get('token'), searchParams.get('email')]
-  console.log(token, email)
 
   const form = useForm<z.infer<typeof NewPasswordSchema>>({
     resolver: zodResolver(NewPasswordSchema),

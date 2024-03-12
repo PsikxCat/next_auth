@@ -23,10 +23,9 @@ export default auth((req) => {
 
   if (!isLoogedIn && !isPublicRoute) {
     let callbackUrl = nextUrl.pathname
-    // console.log('nextUrl.pathname --->', nextUrl.pathname)
-    //     console.log('nextUrl.search --->', nextUrl.search)
+
     if (nextUrl.search) callbackUrl += nextUrl.search
-    // console.log('encodedCallbackUrl --->', encodeURIComponent(callbackUrl))
+
     const encodedCallbackUrl = encodeURIComponent(callbackUrl)
 
     return Response.redirect(new URL(

@@ -24,6 +24,7 @@ import { login } from '@/actions/login'
 export default function LoginForm() {
   const [error, setError] = useState<string | undefined>('')
   const [success, setSuccess] = useState<string | undefined>('')
+  const [showTwoFactorField, setShowTwoFactorField] = useState(false)
   const [isPending, startTransition] = useTransition()
 
   const form = useForm<z.infer<typeof LoginSchema>>({
@@ -41,11 +42,19 @@ export default function LoginForm() {
     startTransition(() => {
       login(values)
         .then((data) => {
-          setError(data.error)
-          setSuccess(data.success)
-        }).catch((error) => {
-          // setError('Error en el servidor')
-          console.error(error)
+          if (data?.error) {
+            form.reset()
+            setError(data.error)
+          }
+
+          if (data?.success) {
+            // form.reset()
+            setSuccess(data.success)
+          }
+
+          if (data?.twoFactorToken) setShowTwoFactorField(true)
+        }).catch(() => {
+          // setError('Error en el servidor. Inténtalo de nuevo.')
         })
     })
   }
@@ -64,58 +73,85 @@ export default function LoginForm() {
         >
           {/* inputs del formulario */}
           <div className='space-y-4'>
-            <FormField
-              control={form.control}
-              name='email'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className='font-bold'>Email</FormLabel>
+            {!showTwoFactorField && (
+              <>
+                <FormField
+                  control={form.control}
+                  name='email'
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className='font-bold'>Email</FormLabel>
 
-                  <FormControl>
-                    <Input
-                      {...field}
-                      disabled={isPending}
-                      placeholder='tucorreo@mail.com'
-                      type='email'
-                    />
-                  </FormControl>
+                      <FormControl>
+                        <Input
+                          {...field}
+                          disabled={isPending}
+                          placeholder='tucorreo@mail.com'
+                          type='email'
+                        />
+                      </FormControl>
 
-                  <FormMessage/>
-                </FormItem>
-              )}
-            />
+                      <FormMessage/>
+                    </FormItem>
+                  )}
+                />
 
-            <FormField
-              control={form.control}
-              name='password'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className='font-bold'>Contraseña</FormLabel>
+                <FormField
+                  control={form.control}
+                  name='password'
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className='font-bold'>Contraseña</FormLabel>
 
-                  <FormControl>
-                    <Input
-                      {...field}
-                      disabled={isPending}
-                      placeholder='********'
-                      type='password'
-                    />
-                  </FormControl>
+                      <FormControl>
+                        <Input
+                          {...field}
+                          disabled={isPending}
+                          placeholder='********'
+                          type='password'
+                        />
+                      </FormControl>
 
-                  <Button
-                    size='sm'
-                    variant='link'
-                    asChild
-                    className='px-0 font-normal'
-                  >
-                    <Link href={'/auth/forgot-password'}>
-                      ¿Olvidaste tu contraseña?
-                    </Link>
-                  </Button>
+                      <Button
+                        size='sm'
+                        variant='link'
+                        asChild
+                        className='px-0 font-normal'
+                      >
+                        <Link href={'/auth/forgot-password'}>
+                          ¿Olvidaste tu contraseña?
+                        </Link>
+                      </Button>
 
-                  <FormMessage/>
-                </FormItem>
-              )}
-            />
+                      <FormMessage/>
+                    </FormItem>
+                  )}
+                />
+              </>
+            )}
+
+            {showTwoFactorField && (
+              <FormField
+                control={form.control}
+                name='twoFactorCode'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className='font-bold'>Código de verificación 2FA</FormLabel>
+
+                    <FormControl>
+                      <Input
+                        {...field}
+                        disabled={isPending}
+                        placeholder='XXXXXX'
+                        type='text'
+                      />
+                    </FormControl>
+
+                    <FormMessage/>
+                  </FormItem>
+                )}
+              />
+            )}
           </div>
 
           <FormError message={error} />
@@ -126,7 +162,7 @@ export default function LoginForm() {
             disabled={isPending}
             className='w-full'
           >
-            Iniciar sesión
+            {showTwoFactorField ? 'Verificar' : 'Iniciar sesión'}
           </Button>
         </form>
       </Form>

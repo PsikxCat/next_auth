@@ -23,10 +23,10 @@ export const newPassword = async (
   const existingToken = await getPasswordResetTokenByToken(email, token)
   if (!existingToken) return { ok: false, error: 'Token inválido' }
 
-  const hasExpired = new Date(existingToken.expires as Date) < new Date()
+  const hasExpired = new Date(existingToken.expires) < new Date()
   if (hasExpired) return { ok: false, error: 'Token expirado' }
 
-  const existingUser = await getUserByEmail(existingToken.email as string)
+  const existingUser = await getUserByEmail(existingToken.email)
   if (!existingUser) return { ok: false, error: 'Email no encontrado' }
 
   const hashedPassword = await bcrypt.hash(password, 10)

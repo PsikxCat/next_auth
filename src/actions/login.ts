@@ -3,12 +3,14 @@
 import type * as z from 'zod'
 import { AuthError } from 'next-auth'
 
+import { db } from '@/lib/db'
 import { LoginSchema } from '@/schemas'
 import { signIn } from '@/auth'
 import { DEFAULT_LOGIN_REDIRECT } from '@/routes'
 import { getUserByEmail } from '@/data/user'
-import { generateVerificationToken } from '@/lib/tokens'
-import { sendVerificationEmail } from '@/lib/mail'
+import { getTwoFactorTokenByEmail } from '@/data/two-factor-token'
+import { generateVerificationToken, generateTwoFactorToken } from '@/lib/tokens'
+import { sendVerificationEmail, sendTwoFactorTokenEmail } from '@/lib/mail'
 
 export const login = async (values: z.infer<typeof LoginSchema>) => {
   const validateFields = LoginSchema.safeParse(values)
@@ -17,7 +19,7 @@ export const login = async (values: z.infer<typeof LoginSchema>) => {
     return { ok: false, error: 'Error en los campos!' }
   }
 
-  const { email, password } = validateFields.data
+  const { email, password, twoFactorCode } = validateFields.data
 
   const existingUser = await getUserByEmail(email)
 
@@ -32,6 +34,42 @@ export const login = async (values: z.infer<typeof LoginSchema>) => {
 
     if (verificationToken) return { ok: true, success: 'Email de confirmación enviado!' }
     else return { ok: false, error: 'Error al enviar el correo de confirmación!' }
+  }
+
+  if (existingUser.isTwoFactorEnabled && existingUser.email) {
+    if (twoFactorCode) {
+      const twoFactorToken = await getTwoFactorTokenByEmail(existingUser.email)
+      if (!twoFactorToken) return { ok: false, error: 'Error en el token de 2FA!' }
+
+      if (twoFactorToken.token !== twoFactorCode) return { ok: false, error: 'Código de 2FA incorrecto!' }
+
+      const hasExpired = new Date(twoFactorToken.expires) < new Date()
+      if (hasExpired) return { ok: false, error: 'El token de 2FA ha expirado!' }
+
+      await db.twoFactorToken.delete({
+        where: { id: twoFactorToken.id }
+      })
+
+      const existingConfirmation = await db.twoFactorConfirmation.findFirst({
+        where: { userId: existingUser.id }
+      })
+
+      if (existingConfirmation) {
+        await db.twoFactorConfirmation.delete({
+          where: { id: existingConfirmation.id }
+        })
+      }
+
+      await db.twoFactorConfirmation.create({
+        data: { userId: existingUser.id }
+      })
+    } else {
+      const twoFactorToken = await generateTwoFactorToken(existingUser.email)
+
+      await sendTwoFactorTokenEmail(twoFactorToken.email, twoFactorToken.token)
+
+      return { ok: true, success: 'Email de 2FA enviado!', twoFactorToken: true }
+    }
   }
 
   try {
@@ -54,7 +92,7 @@ export const login = async (values: z.infer<typeof LoginSchema>) => {
       }
     }
 
-    // es necesario lanzar el error para que redirija, de lo contrario no lo hace (bug?)
+    // es necesario lanzar este throw error para que redireccione, de lo contrario no lo hace (bug?)
     throw error
   }
 }

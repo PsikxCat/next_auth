@@ -5,6 +5,7 @@ import type { UserRole } from '@prisma/client'
 import authConfig from '@/auth.config'
 import { getUserById } from '@/data/user'
 import { db } from '@/lib/db'
+import { getTwoFactorConfirmationByUserId } from './data/two-factor-confirmation'
 
 declare module 'next-auth' {
   interface User {
@@ -38,6 +39,17 @@ export const {
         const existingUser = await getUserById(user.id)
         // Previene el inicio de sesión si el correo no ha sido verificado
         if (!existingUser?.emailVerified) return false
+
+        if (existingUser?.isTwoFactorEnabled) {
+          const twoFactorConfirmation = await getTwoFactorConfirmationByUserId(user.id)
+
+          if (!twoFactorConfirmation) return false
+
+          // Borrar el token de confirmación de dos factores para el siguiente inicio de sesión o crearle un expire time?
+          await db.twoFactorConfirmation.delete({
+            where: { id: twoFactorConfirmation.id }
+          })
+        }
       }
 
       return true
