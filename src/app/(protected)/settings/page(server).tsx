@@ -19,3 +19,5 @@ export default async function SettingsPage() {
     </div>
   )
 }
+
+// # este fichero fue el primer ejemplo de /settings en donde simplemente capturamos los datos de la sesion por medio de auth() de @/auth y los mostramos en pantalla
