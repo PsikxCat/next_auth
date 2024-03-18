@@ -1,4 +1,3 @@
-import React from 'react'
 import { Navbar } from '@/app/(protected)/_components'
 
 interface ProtectedLayoutProps {

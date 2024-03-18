@@ -5,3 +5,9 @@ export const getCurrentUser = async () => {
 
   return session?.user
 }
+
+export const getCurrentRole = async () => {
+  const user = await getCurrentUser()
+
+  return user?.role
+}
