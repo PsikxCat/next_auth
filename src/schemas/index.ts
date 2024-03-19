@@ -37,3 +37,7 @@ export const NewPasswordSchema = z.object({
   message: 'Las contraseñas no coinciden',
   path: ['passwordConfirmation']
 })
+
+export const SettingsSchema = z.object({
+  name: z.optional(z.string())
+})
