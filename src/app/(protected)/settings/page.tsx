@@ -10,23 +10,23 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useCurrentUser } from '@/hooks/use-current-user'
 import { settings } from '@/actions/settings'
 import { SettingsSchema } from '@/schemas'
+import { FormError, FormSuccess } from '@/components'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
 import {
   Form,
   FormField,
   FormControl,
   FormItem,
   FormLabel,
-  FormDescription,
   FormMessage
 } from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
 
 export default function SettingsPage() {
   const user = useCurrentUser()
-  const [error, setError] = useState<string | undefined>()
-  const [success, setSuccess] = useState<string | undefined>()
+  const [error, setError] = useState<string | undefined>('')
+  const [success, setSuccess] = useState<string | undefined>('')
 
   const { update } = useSession()
   const [isPending, startTransition] = useTransition()
@@ -34,11 +34,14 @@ export default function SettingsPage() {
   const form = useForm<z.infer<typeof SettingsSchema>>({
     resolver: zodResolver(SettingsSchema),
     defaultValues: {
-      name: user?.name ?? undefined
+      name: user?.name ?? undefined,
+      email: user?.email ?? undefined,
+      password: undefined,
+      newPassword: undefined
     }
   })
 
-  const onSubmit = (values: z.infer<typeof SettingsSchema>) => {
+  const handleSubmit = (values: z.infer<typeof SettingsSchema>) => {
     startTransition(() => {
       settings(values)
         .then(async (data) => {
@@ -63,28 +66,102 @@ export default function SettingsPage() {
 
       <CardContent>
         <Form {...form}>
-          <form className='space-y-6' onSubmit={form.handleSubmit(onSubmit)}>
+          <form
+            onSubmit={form.handleSubmit(handleSubmit)}
+            className='space-y-6'
+          >
+            {/* campos del formulario */}
             <div className='space-y-4'>
               <FormField
                 control={form.control}
                 name='name'
                 render={({ field }) => (
-                  <FormControl>
-                    <FormItem>
-                      <FormLabel>Name</FormLabel>
-                      <FormControl>
-                        <Input
-                          {...field}
-                          placeholder='Jhon Doe'
-                          disabled={isPending}
-                        />
-                      </FormControl>
-                    </FormItem>
-                  </FormControl>
+                  <FormItem>
+                    <FormLabel>Name</FormLabel>
+
+                    <FormControl>
+                      <Input
+                        {...field}
+                        disabled={isPending}
+                        placeholder='Jhon Doe'
+                        type='text'
+                      />
+                    </FormControl>
+
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name='email'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Email</FormLabel>
+
+                    <FormControl>
+                      <Input
+                        {...field}
+                        type='email'
+                        placeholder='your@email.com'
+                        disabled={isPending}
+                      />
+                    </FormControl>
+
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name='password'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Password</FormLabel>
+
+                    <FormControl>
+                      <Input
+                        {...field}
+                        type='password'
+                        placeholder='******'
+                        disabled={isPending}
+                      />
+                    </FormControl>
+
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name='newPassword'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>New Password</FormLabel>
+
+                    <FormControl>
+                      <Input
+                        {...field}
+                        type='password'
+                        placeholder='******'
+                        disabled={isPending}
+                      />
+                    </FormControl>
+
+                    <FormMessage />
+                  </FormItem>
                 )}
               />
             </div>
 
+            {/* mensajes */}
+            {error && <FormError message={error}/>}
+            {success && <FormSuccess message={success}/>}
+
+            {/* botón */}
             <Button type='submit' disabled={isPending}>
               Save
             </Button>

@@ -1,4 +1,5 @@
 import * as z from 'zod'
+// import { UserRole } from '@prisma/client'
 
 export const LoginSchema = z.object({
   email: z.string().email({
@@ -39,5 +40,32 @@ export const NewPasswordSchema = z.object({
 })
 
 export const SettingsSchema = z.object({
-  name: z.optional(z.string())
+  name: z.optional(z.string().min(1, {
+    message: 'Un nombre es requerido'
+  })),
+  // isTwoFactorEnabled: z.optional(z.boolean()),
+  // role: z.enum([UserRole.ADMIN, UserRole.USER]),
+  email: z.optional(z.string().email({
+    message: 'Ingresa un correo válido'
+  })),
+  password: z.optional(z.string().min(6, {
+    message: 'La contraseña debe tener al menos 6 caracteres'
+  })),
+  newPassword: z.optional(z.string().min(6, {
+    message: 'La contraseña debe tener al menos 6 caracteres'
+  }))
 })
+  .refine(data => {
+    if ((data.password && !data.newPassword) ?? (!data.password && data.newPassword)) {
+      return false
+    }
+
+    return true
+  }, {
+    message: 'Both password and new password are required',
+    path: ['newPassword']
+  })
+  .refine(data => data.password === data.newPassword, {
+    message: 'Las contraseñas no coinciden',
+    path: ['newPassword']
+  })
