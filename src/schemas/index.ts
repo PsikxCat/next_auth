@@ -1,5 +1,5 @@
 import * as z from 'zod'
-// import { UserRole } from '@prisma/client'
+import { UserRole } from '@prisma/client'
 
 export const LoginSchema = z.object({
   email: z.string().email({
@@ -43,8 +43,8 @@ export const SettingsSchema = z.object({
   name: z.optional(z.string().min(1, {
     message: 'Un nombre es requerido'
   })),
-  // isTwoFactorEnabled: z.optional(z.boolean()),
-  // role: z.enum([UserRole.ADMIN, UserRole.USER]),
+  isTwoFactorEnabled: z.optional(z.boolean()),
+  role: z.enum([UserRole.ADMIN, UserRole.USER]),
   email: z.optional(z.string().email({
     message: 'Ingresa un correo válido'
   })),
@@ -62,10 +62,6 @@ export const SettingsSchema = z.object({
 
     return true
   }, {
-    message: 'Both password and new password are required',
-    path: ['newPassword']
-  })
-  .refine(data => data.password === data.newPassword, {
-    message: 'Las contraseñas no coinciden',
+    message: 'Ambos campos, contraseña y nueva contraseña, son requeridos',
     path: ['newPassword']
   })
